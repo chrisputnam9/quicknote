@@ -23,6 +23,9 @@ Class Quicknote extends Console_Abstract
         'add_tx',
     ];
 
+    protected $__quicknotes_file = "OK to run as root";
+    public $quicknotes_file = "/tmp/quicknotes.md";
+
     protected $___add = [
         "Add a new note - with interactive prompt for details"
     ];
@@ -76,11 +79,12 @@ Class Quicknote extends Console_Abstract
         echo "Add a new note - TFX List -  Not yet implemented";
 
         $list = $this->select([
-            "TI - Team Initiative",
-            "KS - Knowledge Sharing",
             "DN - DevNext - Bootcamp, CDT, PP, etc.",
             "EM - Weekly E-mail",
+            "KS - Knowledge Sharing",
             "KZ - Kelly's List",
+            "OP - Ops List",
+            "TI - Team Initiative",
         ], "Select list to add to");
     }
 
@@ -107,8 +111,17 @@ Class Quicknote extends Console_Abstract
     {
         $this->clear();
         $message = $this->edit();
-        // todo
-        echo "$message";
+        $message = trim($message);
+        if (empty($message))
+        {
+            $this->output("Cancelled");
+            return;
+        }
+
+        // Old contents
+        $prior_contents = file_get_contents($this->quicknotes_file);
+        file_put_contents($this->quicknotes_file, $message."\n\n" . $prior_contents);
+        $this->output("Complete");
     }
 
     protected $___add_tx = [
