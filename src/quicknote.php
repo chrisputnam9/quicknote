@@ -26,6 +26,9 @@ Class Quicknote extends Console_Abstract
     protected $__quicknotes_file = "OK to run as root";
     public $quicknotes_file = "/tmp/quicknotes.md";
 
+    public const TFX_CHRIS_PUTNAM = 10072759;
+    public const TFX_KELLY_ZARCONE = 3488372;
+
     protected $___add = [
         "Add a new note - with interactive prompt for details"
     ];
@@ -76,16 +79,63 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_fx()
     {
-        echo "Add a new note - TFX List -  Not yet implemented";
+        $this->clear();
 
-        $list = $this->select([
-            "DN - DevNext - Bootcamp, CDT, PP, etc.",
-            "EM - Weekly E-mail",
-            "KS - Knowledge Sharing",
-            "KZ - Kelly's List",
-            "OP - Ops List",
-            "TI - Team Initiative",
-        ], "Select list to add to");
+        $options = [
+            "DN - DevNext - Bootcamp, CDT, PP, etc." => "dn",
+            "EM - Weekly E-mail" => "em",
+            "KS - Knowledge Sharing" => "ks",
+            "KZ - Kelly's List" => "kz",
+            "OP - Ops List" => "op",
+            "TI - Team Initiative" => "ti",
+        ];
+
+        $option_configs = [
+            "dn" => [
+                "type" => "list",
+                "id" => 29965674,
+                "location" => "bottom",
+                "assign" => self::TFX_CHRIS_PUTNAM,
+            ],
+            "em" => [
+                "type" => "list",
+                "id" => 31944125,
+                "location" => "bottom",
+            ],
+            "ks" => [
+                "type" => "list",
+                "id" => 29593658,
+                "location" => "top",
+                "assign" => self::TFX_CHRIS_PUTNAM,
+            ],
+            "kz" => [
+                "type" => "project",
+                "project" => 12218350,
+                "location" => "bottom",
+                "assign" => self::TFX_KELLY_ZARCONE,
+            ],
+            "op" => [
+                "type" => "list",
+                "id" => 30906209,
+                "location" => "top",
+                "assign" => self::TFX_CHRIS_PUTNAM,
+                "template" => "[:;] <b>[;]</b> (A;|D;) ;",
+            ],
+            "ti" => [
+                "type" => "list",
+                "id" => 30906208,
+                "location" => "bottom",
+                "assign" => self::TFX_CHRIS_PUTNAM,
+            ],
+        ];
+
+        $option_keys = array_keys($options);
+
+        $option = $this->select($option_keys, "Select area to add item", 4);
+        $option_key = $options[$option];
+        $option_config = $option_configs[$option_key];
+
+        $this->output($option_config);
     }
 
     protected $___add_gh = [
@@ -93,7 +143,7 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_gh()
     {
-        echo "Add a new note - TFX List - Not yet implemented";
+        echo "Add a new note - Github Issue - Not yet implemented";
     }
 
     protected $___add_ml = [
