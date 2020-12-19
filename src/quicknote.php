@@ -26,6 +26,9 @@ Class Quicknote extends Console_Abstract
     protected $__quicknotes_file = "OK to run as root";
     public $quicknotes_file = "/tmp/quicknotes.md";
 
+    protected $__ptfx_exec = "PTFX Exec";
+    public $ptfx_exec = "/usr/local/bin/ptfx";
+
     public const TFX_CHRIS_PUTNAM = 10072759;
     public const TFX_KELLY_ZARCONE = 3488372;
 
@@ -135,7 +138,17 @@ Class Quicknote extends Console_Abstract
         $option_key = $options[$option];
         $option_config = $option_configs[$option_key];
 
-        $this->output($option_config);
+        $id = $option_config["id"];
+        $type = $option_config["type"];
+        $template = empty($option_config["template"]) ? "" : $option_config["template"];
+        $location = $option_config["location"];
+
+        $command = $this->ptfx_exec . ' create_todo "'.$id.'" "'.$type.'" "" "'.$template.'" "'.$location.'" ';
+
+        $this->clear();
+        $output = $this->exec($command);
+        $this->output($output);
+        $this->input("Hit any key to quit", null, null, true);
     }
 
     protected $___add_gh = [
