@@ -129,6 +129,7 @@ Class Quicknote extends Console_Abstract
                 "id" => 30906208,
                 "location" => "bottom",
                 "assign" => self::TFX_CHRIS_PUTNAM,
+                "template" => "<b>[;high_medium_low]</b> ;",
             ],
         ];
 
@@ -141,14 +142,35 @@ Class Quicknote extends Console_Abstract
         $id = $option_config["id"];
         $type = $option_config["type"];
         $template = empty($option_config["template"]) ? "" : $option_config["template"];
+        $assign = empty($option_config["assign"]) ? "" : $option_config["assign"];
         $location = $option_config["location"];
 
-        $command = $this->ptfx_exec . ' create_todo "'.$id.'" "'.$type.'" "" "'.$template.'" "'.$location.'" ';
+        $command = $this->ptfx_exec . ' create_todo ' . 
+            '"'.$id.'" ' . // list or project id
+            '"" '. // message (will prompt)
+            '"'.$assign.'" ' . // user to assing
+            '"'.$location.'" ' . // where to creat - top or bottom of list
+            '"'.$type.'" ' . // type of id - list or project
+            '"'.$template.'" ' . // message template
+        '';
 
         $this->clear();
+        $this->output("Creating todo...");
         $output = $this->exec($command);
-        $this->output($output);
-        $this->input("Hit any key to quit", null, null, true);
+
+        $output = explode("\n", $output);
+        $last_line = array_pop($output);
+        $url = trim($last_line);
+
+        $this->output("Todo created: $url");
+
+        $key = $this->input("Press O or B to open in browser, any other key to quit", null, null, true);
+
+        $key = strtolower($key);
+        if ($key == 'o' or $key == 'b')
+        {
+            $this->openInBrowser($url);
+        }
     }
 
     protected $___add_gh = [
