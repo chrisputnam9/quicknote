@@ -26,11 +26,15 @@ Class Quicknote extends Console_Abstract
     protected $__quicknotes_file = "OK to run as root";
     public $quicknotes_file = "/tmp/quicknotes.md";
 
+    protected $__pacli_exec = "PACLI Exec";
+    public $pacli_exec = "/usr/local/bin/pacli";
+
     protected $__ptfx_exec = "PTFX Exec";
     public $ptfx_exec = "/usr/local/bin/ptfx";
 
     public const TFX_CHRIS_PUTNAM = 10072759;
     public const TFX_KELLY_ZARCONE = 3488372;
+    public const LINE_BREAK = "----------------------------------------------------------------------------------------------------";
 
     protected $___add = [
         "Add a new note - with interactive prompt for details"
@@ -66,7 +70,147 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_as()
     {
-        echo "Add a new note - Asana Todo - Not yet implemented";
+        // Initilize Pacli for use here
+        $__no_direct_run__ = true;
+        ob_start();
+        require_once($this->pacli_exec);
+        $output = ob_get_clean();
+        $pacli = new Pacli();
+        $pacli->initConfig();
+
+        // Get workspace
+        $response = $pacli->get('workspaces', false);
+        $workspace_gid = $response->data[0]->gid;
+
+        // Get favorite projects
+        //$response = $pacli->get('users/me/favorites?resource_type=project&workspace=' . $workspace_gid, false);
+
+        // Get all non-archived projects
+        $response = $pacli->get('projects?archived=0', false);
+        $data = $response->data;
+        $projects = [
+            'NO PROJECT (default)' => false,
+        ];
+        foreach ($data as $project)
+        {
+            $projects[$project->name] = $project->gid;
+        }
+        $project_keys = array_keys($projects);
+
+        // Select project to add to (or no project);
+        $project_name = $this->select($project_keys, "Select project");
+        $project_gid = $projects[$project_name];
+        //$this->output($project_name . ": " . $project_gid);
+
+        if (!empty($project_gid))
+        {
+            // Get sections within project if any
+            $response = $pacli->get('projects/'.$project_gid.'/sections', false);
+            $section_gid = false;
+            if (!empty($response->data) and count($response->data) > 1)
+            {
+                $data = $response->data;
+                $sections = [
+                    'NO SECTION (default)' => false,
+                ];
+                foreach ($data as $section)
+                {
+                    $sections[$section->name] = $section->gid;
+                }
+                $section_keys = array_keys($sections);
+
+                // Select section to add to (or no section);
+                $this->clear();
+                $section_name = $this->select($section_keys, "Select section");
+                $section_gid = $sections[$section_name];
+                //$this->output($section_name . ": " . $section_gid);
+            }
+        }
+
+        $edited = $this->edit(
+            "\n" . 
+            self::LINE_BREAK . "\n" .
+            "Assignee: '".( empty($project_gid) ? "me" : "" )."'\n" .
+            self::LINE_BREAK . "\n" .
+            "Due Date: ''\n" .
+            self::LINE_BREAK . "\n" .
+            "Description Below:\n" .
+            self::LINE_BREAK . "\n" .
+            self::LINE_BREAK . "\n" .
+            "HELP/TIPS:\n" . 
+            "Due Date: Any parseable date string\n" . 
+            "Assignee: 'me' or blank\n" . 
+            "");
+
+        $data = explode(self::LINE_BREAK, $edited);
+        $data = array_map('trim', $data);
+
+        $name = $data[0];
+        $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[1]));
+        $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[2]));
+        $description = $data[4];
+
+        $data = [
+            'workspace' => $workspace_gid,
+            'name' => $name,
+            'description' => $description,
+        ];
+
+        if (empty($name))
+        {
+            $this->warn("No name entered", true);
+        }
+
+        if (!empty($due_date))
+        {
+            $due_date_stamp = strtotime($due_date);
+            if ($due_date_stamp)
+            {
+                $data['due_on'] = date('Y-m-d', $due_date_stamp);
+            }
+            else
+            {
+                $this->error("Invalid Due Date - $due_date");
+            }
+        }
+
+        if (!empty($assignee))
+        {
+            if ($assignee == 'me')
+            {
+                $result = $pacli->get("users/me", false, false, true);
+                $data['asignee'] = $result->data->gid;
+            }
+            else
+            {
+                $this->error("Invalid Assignee - $assignee");
+            }
+        }
+
+        if (!empty($project_gid))
+        {
+            $data['projects'] = [$project_gid];
+        }
+
+        $this->output($data);
+
+        $result = $pacli->post("tasks", $data, false, false, true);
+
+        $this->output($result);
+
+        if (empty($result->data->permalink_url))
+        {
+            $this->error("There was an error creating the task", false);
+            $this->error($result);
+        }
+
+        // Move task to section if specified
+        if (!empty($section_gid))
+        {
+            $pacli->post("sections/$section_gid/addTask", ['task' => $result->data->gid], false, false, true);
+        }
+
+        $this->_success_maybe_open($result->data->permalink_url);
     }
 
     protected $___add_cl = [
@@ -162,15 +306,7 @@ Class Quicknote extends Console_Abstract
         $last_line = array_pop($output);
         $url = trim($last_line);
 
-        $this->output("Todo created: $url");
-
-        $key = $this->input("Press O or B to open in browser, any other key to quit", null, null, true);
-
-        $key = strtolower($key);
-        if ($key == 'o' or $key == 'b')
-        {
-            $this->openInBrowser($url);
-        }
+        $this->_success_maybe_open($url);
     }
 
     protected $___add_gh = [
@@ -215,6 +351,22 @@ Class Quicknote extends Console_Abstract
 	public function add_tx()
     {
         echo "Add a new note - Miscellaneous - Quicknotes file - Not yet implemented";
+    }
+
+    /**
+     * Output success message and offer to open URL of created item
+     */
+    protected function _success_maybe_open($url)
+    {
+        $this->output("Item created: $url");
+
+        $key = $this->input("Press O or B to open in browser, any other key to quit", null, null, true);
+
+        $key = strtolower($key);
+        if ($key == 'o' or $key == 'b')
+        {
+            $this->openInBrowser($url);
+        }
     }
 }
 
