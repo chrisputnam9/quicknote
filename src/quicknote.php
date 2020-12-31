@@ -134,7 +134,7 @@ Class Quicknote extends Console_Abstract
             self::LINE_BREAK . "\n" .
             "Due Date: ''\n" .
             self::LINE_BREAK . "\n" .
-            "Description Below:\n" .
+            "Notes Below:\n" .
             self::LINE_BREAK . "\n" .
             self::LINE_BREAK . "\n" .
             "HELP/TIPS:\n" . 
@@ -148,12 +148,12 @@ Class Quicknote extends Console_Abstract
         $name = $data[0];
         $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[1]));
         $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[2]));
-        $description = $data[4];
+        $notes = $data[4];
 
         $data = [
             'workspace' => $workspace_gid,
             'name' => $name,
-            'description' => $description,
+            'notes' => $notes,
         ];
 
         if (empty($name))
@@ -178,8 +178,9 @@ Class Quicknote extends Console_Abstract
         {
             if ($assignee == 'me')
             {
-                $result = $pacli->get("users/me", false, false, true);
-                $data['asignee'] = $result->data->gid;
+                //$result = $pacli->get("users/me", false, false, true);
+                //$data['assignee'] = $result->data->gid;
+                $data['assignee'] = $assignee;
             }
             else
             {
@@ -192,11 +193,7 @@ Class Quicknote extends Console_Abstract
             $data['projects'] = [$project_gid];
         }
 
-        $this->output($data);
-
         $result = $pacli->post("tasks", $data, false, false, true);
-
-        $this->output($result);
 
         if (empty($result->data->permalink_url))
         {
@@ -210,7 +207,8 @@ Class Quicknote extends Console_Abstract
             $pacli->post("sections/$section_gid/addTask", ['task' => $result->data->gid], false, false, true);
         }
 
-        $this->_success_maybe_open($result->data->permalink_url);
+        // provide & offer to open full screen link
+        $this->_success_maybe_open($result->data->permalink_url . "/f");
     }
 
     protected $___add_cl = [
