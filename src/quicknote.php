@@ -34,7 +34,7 @@ Class Quicknote extends Console_Abstract
 
     public const TFX_CHRIS_PUTNAM = 10072759;
     public const TFX_KELLY_ZARCONE = 3488372;
-    public const LINE_BREAK = "----------------------------------------------------------------------------------------------------";
+    public const LINE_BREAK = "------------------------------------------------------------------------------------------------";
 
     protected $___add = [
         "Add a new note - with interactive prompt for details"
@@ -158,7 +158,7 @@ Class Quicknote extends Console_Abstract
 
         if (empty($name))
         {
-            $this->warn("No name entered", true);
+            $this->warn("No task name entered", true);
         }
 
         if (!empty($due_date))
