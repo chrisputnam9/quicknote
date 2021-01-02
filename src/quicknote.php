@@ -156,6 +156,7 @@ Class Quicknote extends Console_Abstract
             'notes' => $notes,
         ];
 
+        // No name will show up as a blank task
         if (empty($name))
         {
             $this->warn("No task name entered", true);
@@ -188,7 +189,18 @@ Class Quicknote extends Console_Abstract
             }
         }
 
-        if (!empty($project_gid))
+        if (empty($project_gid))
+        {
+            if (empty($due_date))
+            {
+                $this->warn("No due date and no project - task may get lost", true);
+            }
+            if (empty($due_date))
+            {
+                $this->warn("No assignee and no project - task will get lost!", true);
+            }
+        }
+        else
         {
             $data['projects'] = [$project_gid];
         }
