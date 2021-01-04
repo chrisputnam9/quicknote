@@ -127,83 +127,120 @@ Class Quicknote extends Console_Abstract
             }
         }
 
-        $edited = $this->edit(
-            "\n" . 
-            self::LINE_BREAK . "\n" .
-            "Assignee: '".( empty($project_gid) ? "me" : "" )."'\n" .
-            self::LINE_BREAK . "\n" .
-            "Due Date: ''\n" .
-            self::LINE_BREAK . "\n" .
-            "Notes Below:\n" .
-            self::LINE_BREAK . "\n" .
-            self::LINE_BREAK . "\n" .
-            "HELP/TIPS:\n" . 
-            "Due Date: Any parseable date string\n" . 
-            "Assignee: 'me' or blank\n" . 
-            "");
+        $assignee = empty($project_gid) ? "me" : "";
+        $due_date = "";
+        $task_name = "";
+        $task_notes = "";
+        $try_again = false;
 
-        $data = explode(self::LINE_BREAK, $edited);
-        $data = array_map('trim', $data);
+        do {
+            $warnings = [];
 
-        $name = $data[0];
-        $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[1]));
-        $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[2]));
-        $notes = $data[4];
+            $edited = $this->edit(
 
-        $data = [
-            'workspace' => $workspace_gid,
-            'name' => $name,
-            'notes' => $notes,
-        ];
+                "$task_name\n" . 
+                self::LINE_BREAK . "\n" .
 
-        // No name will show up as a blank task
-        if (empty($name))
-        {
-            $this->warn("No task name entered", true);
-        }
+                "Assignee: '$assignee'\n" .
+                self::LINE_BREAK . "\n" .
 
-        if (!empty($due_date))
-        {
-            $due_date_stamp = strtotime($due_date);
-            if ($due_date_stamp)
+                "Due Date: '$due_date'\n" .
+                self::LINE_BREAK . "\n" .
+
+                "Notes Below:\n" .
+                self::LINE_BREAK . "\n" .
+                $task_notes . "\n" .
+                self::LINE_BREAK . "\n" .
+
+                "HELP/TIPS:\n" . 
+                "Due Date: Any parseable date string\n" . 
+                "Assignee: 'me' or blank\n" . 
+                "",
+                
+                "new_asana_task.md",
+
+                $try_again
+            );
+
+            $data = explode(self::LINE_BREAK, $edited);
+            $data = array_map('trim', $data);
+
+            $task_name = $data[0];
+            $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[1]));
+            $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[2]));
+            $task_notes = $data[4];
+
+            $data = [
+                'workspace' => $workspace_gid,
+                'name' => $task_name,
+                'notes' => $task_notes,
+            ];
+
+            // No name will show up as a blank task
+            if (empty($task_name))
             {
-                $data['due_on'] = date('Y-m-d', $due_date_stamp);
+                $warnings[]= "No task name entered";
+            }
+
+            if (!empty($due_date))
+            {
+                $due_date_stamp = strtotime($due_date);
+                if ($due_date_stamp)
+                {
+                    $data['due_on'] = date('Y-m-d', $due_date_stamp);
+                }
+                else
+                {
+                    $warnings[]= "Invalid Due Date - $due_date";
+                }
+            }
+
+            if (!empty($assignee))
+            {
+                if ($assignee == 'me')
+                {
+                    //$result = $pacli->get("users/me", false, false, true);
+                    //$data['assignee'] = $result->data->gid;
+                    $data['assignee'] = $assignee;
+                }
+                else
+                {
+                    $warnings[]= "Invalid Assignee - $assignee";
+                }
+            }
+
+            if (empty($project_gid))
+            {
+                if (empty($data['due_on']))
+                {
+                    $warnings[]= "No due date and no project - task may get lost";
+                }
+                if (empty($data['assignee']))
+                {
+                    $warnings[]= "No assignee and no project - task will get lost!";
+                }
             }
             else
             {
-                $this->error("Invalid Due Date - $due_date");
+                $data['projects'] = [$project_gid];
             }
-        }
 
-        if (!empty($assignee))
-        {
-            if ($assignee == 'me')
+            $try_again = false;
+            if (!empty($warnings))
             {
-                //$result = $pacli->get("users/me", false, false, true);
-                //$data['assignee'] = $result->data->gid;
-                $data['assignee'] = $assignee;
-            }
-            else
-            {
-                $this->error("Invalid Assignee - $assignee");
-            }
-        }
+                $this->warn("\n - " . join("\n - ", $warnings));
+                $option = $this->select([
+                    "Go back and modify data (default)",
+                    "Create task anyway",
+                ]);
 
-        if (empty($project_gid))
-        {
-            if (empty($due_date))
-            {
-                $this->warn("No due date and no project - task may get lost", true);
+                if ($option == "Go back and modify data (default)")
+                {
+                    $try_again = true;
+                }
             }
-            if (empty($due_date))
-            {
-                $this->warn("No assignee and no project - task will get lost!", true);
-            }
-        }
-        else
-        {
-            $data['projects'] = [$project_gid];
-        }
+
+        } while ($try_again);
 
         $result = $pacli->post("tasks", $data, false, false, true);
 
