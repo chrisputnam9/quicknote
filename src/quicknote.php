@@ -70,7 +70,7 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_as()
     {
-        // Initilize Pacli for use here
+        // Initilize PACLI for use here
         $__no_direct_run__ = true;
         ob_start();
         require_once($this->pacli_exec);
@@ -336,22 +336,24 @@ Class Quicknote extends Console_Abstract
         $assign = empty($option_config["assign"]) ? "" : $option_config["assign"];
         $location = $option_config["location"];
 
-        $command = $this->ptfx_exec . ' create_todo ' . 
-            '"'.$id.'" ' . // list or project id
-            '"" '. // message (will prompt)
-            '"'.$assign.'" ' . // user to assing
-            '"'.$location.'" ' . // where to creat - top or bottom of list
-            '"'.$type.'" ' . // type of id - list or project
-            '"'.$template.'" ' . // message template
-        '';
+        // Initilize PTFX for use here
+        $__no_direct_run__ = true;
+        ob_start();
+        require_once($this->ptfx_exec);
+        $output = ob_get_clean();
+        $ptfx = new Ptfx();
+        $ptfx->initConfig();
 
         $this->clear();
         $this->output("Creating todo...");
-        $output = $this->exec($command);
-
-        $output = explode("\n", $output);
-        $last_line = array_pop($output);
-        $url = trim($last_line);
+        $url = $ptfx->create_todo(
+            $id,        // list or project id
+            null,       // message (will prompt)
+            $assign,    // user to assing
+            $location,  // where to creat - top or bottom of list
+            $type,      // type of id - list or project
+            $template,  // message template
+        );
 
         $this->_success_maybe_open($url);
     }
