@@ -265,7 +265,7 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_cl()
     {
-        echo "Add a new note - Asana Todo - Not yet implemented";
+        echo "Add a new note - Calendar Event - Not yet implemented";
     }
 
     protected $___add_fx = [
@@ -276,6 +276,7 @@ Class Quicknote extends Console_Abstract
         $this->clear();
 
         $options = [
+            "AG - Annual Goals, Habits, etc" => "ag",
             "DN - DevNext - Bootcamp, CDT, PP, etc." => "dn",
             "EM - Weekly E-mail" => "em",
             "KS - Knowledge Sharing" => "ks",
@@ -285,6 +286,11 @@ Class Quicknote extends Console_Abstract
         ];
 
         $option_configs = [
+            "ag" => [
+                "type" => "list",
+                "id" => 31927383,
+                "location" => "top",
+            ],
             "dn" => [
                 "type" => "list",
                 "id" => 29965674,
@@ -399,7 +405,7 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_tx()
     {
-        echo "Add a new note - Miscellaneous - Quicknotes file - Not yet implemented";
+        echo "Add a new note - Text Message - Not yet implemented";
     }
 
     /**
