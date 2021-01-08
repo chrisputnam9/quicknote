@@ -26,6 +26,7 @@ if (!is_file(CONSOLE_ABSTRACT_PATH))
 
 # Paths to other includes
 $src_includes = array(
+    __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'qn_tfx_list_options.php',
     __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'quicknote.php',
 );
 

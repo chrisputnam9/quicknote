@@ -32,8 +32,6 @@ Class Quicknote extends Console_Abstract
     protected $__ptfx_exec = "PTFX Exec";
     public $ptfx_exec = "/usr/local/bin/ptfx";
 
-    public const TFX_CHRIS_PUTNAM = 10072759;
-    public const TFX_KELLY_ZARCONE = 3488372;
     public const LINE_BREAK = "------------------------------------------------------------------------------------------------";
 
     protected $___add = [
@@ -275,60 +273,13 @@ Class Quicknote extends Console_Abstract
     {
         $this->clear();
 
-        $options = [
-            "AG - Annual Goals, Habits, etc" => "ag",
-            "DN - DevNext - Bootcamp, CDT, PP, etc." => "dn",
-            "EM - Weekly E-mail" => "em",
-            "KS - Knowledge Sharing" => "ks",
-            "KZ - Kelly's List" => "kz",
-            "OP - Ops List" => "op",
-            "TI - Team Initiative" => "ti",
-        ];
-
-        $option_configs = [
-            "ag" => [
-                "type" => "list",
-                "id" => 31927383,
-                "location" => "top",
-            ],
-            "dn" => [
-                "type" => "list",
-                "id" => 29965674,
-                "location" => "bottom",
-                "assign" => self::TFX_CHRIS_PUTNAM,
-            ],
-            "em" => [
-                "type" => "list",
-                "id" => 31944125,
-                "location" => "bottom",
-            ],
-            "ks" => [
-                "type" => "list",
-                "id" => 29593658,
-                "location" => "top",
-                "assign" => self::TFX_CHRIS_PUTNAM,
-            ],
-            "kz" => [
-                "type" => "project",
-                "project" => 12218350,
-                "location" => "bottom",
-                "assign" => self::TFX_KELLY_ZARCONE,
-            ],
-            "op" => [
-                "type" => "list",
-                "id" => 30906209,
-                "location" => "top",
-                "assign" => self::TFX_CHRIS_PUTNAM,
-                "template" => "[:;] <b>[;]</b> (A;|D;) ;",
-            ],
-            "ti" => [
-                "type" => "list",
-                "id" => 30906208,
-                "location" => "bottom",
-                "assign" => self::TFX_CHRIS_PUTNAM,
-                "template" => "<b>[;high_medium_low]</b> ;",
-            ],
-        ];
+        $option_configs = QN_TFX_List_Options::$options;
+        $options = [];
+        foreach ($option_configs as $key => $option_config)
+        {
+            $name = $option_config['name'];
+            $options[$name] = $key;
+        }
 
         $option_keys = array_keys($options);
 
