@@ -362,17 +362,31 @@ Class Quicknote extends Console_Abstract
     /**
      * Output success message and offer to open URL of created item
      */
-    protected function _success_maybe_open($url)
+    protected function _success_maybe_open($url, $list_url=false)
     {
-        $this->output("Item created: $url");
+        do {
+            $this->clear();
+            $this->output("Item created: $url");
+            $this->output(" - Press O to open item in browser");
+            if ($list_url)
+            {
+                $this->output("On List: $list_url");
+                $this->output(" - Press L to open item in browser");
+            }
 
-        $key = $this->input("Press O or B to open in browser, any other key to quit", null, null, true);
+            $key = $this->input("\nAny other key to quit", null, null, true);
 
-        $key = strtolower($key);
-        if ($key == 'o' or $key == 'b')
-        {
-            $this->openInBrowser($url);
-        }
+            $continue = false;
+            $key = strtolower($key);
+            if ($key == 'o')
+            {
+                $this->openInBrowser($url);
+            }
+            elseif ($key == 'l')
+            {
+                $this->openInBrowser($list_url);
+            }
+        } while ($continue);
     }
 }
 

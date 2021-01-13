@@ -64,10 +64,10 @@ if (!class_exists('QN_TFX_List_Options'))
                 "location" => "top",
                 "assign" => self::TFX_CHRIS_PUTNAM,
             ],
-            "kz" => [
-                "name" => "KZ - Kelly's List",
+            "kp" => [
+                "name" => "KP - Kelly's Project / Lists, KZ, KLZ",
                 "type" => "project",
-                "project" => 12218350,
+                "id" => 12218350,
                 "location" => "bottom",
                 "assign" => self::TFX_KELLY_ZARCONE,
             ],
