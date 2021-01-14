@@ -25,6 +25,13 @@ if (!class_exists('QN_TFX_List_Options'))
                 "id" => 31927383,
                 "location" => "top",
             ],
+            "cn" => [
+                "name" => "CN - Coaching Notes",
+                "type" => "project",
+                "id" => 14461689,
+                "location" => "bottom",
+                "template" => "Chris - ;",
+            ],
             "dn" => [
                 "name" => "DN - DevNext - Bootcamp, CDT, PP, etc.",
                 "type" => "list",
@@ -42,6 +49,25 @@ if (!class_exists('QN_TFX_List_Options'))
                 "name" => "EM - Weekly E-mail",
                 "type" => "list",
                 "id" => 31944125,
+                "location" => "bottom",
+            ],
+            "fxl" => [
+                "name" => "FXL - FXLearns Suggestion",
+                "type" => "list",
+                "id" => 24862738,
+                "location" => "bottom",
+                "template" => "Chris P - title - link",
+            ],
+            "intpr" => [
+                "name" => "INTPR - Interactive Project",
+                "type" => "project",
+                "id" => 14667798,
+                "location" => "bottom",
+            ],
+            "intop" => [
+                "name" => "INTOP - Interactive Operations Project",
+                "type" => "project",
+                "id" => 1394938,
                 "location" => "bottom",
             ],
             "ip" => [
@@ -78,6 +104,13 @@ if (!class_exists('QN_TFX_List_Options'))
                 "location" => "top",
                 "assign" => self::TFX_CHRIS_PUTNAM,
                 "template" => "[:;] <b>[;]</b> (A;|D;) ;",
+            ],
+            "pi" => [
+                "name" => "PI - Process Improvements",
+                "type" => "project",
+                "id" => 11878515,
+                "location" => "bottom",
+                "template" => "<b>Added by ;</b> ;",
             ],
             "pto" => [
                 "name" => "PTO - PTO/Off Item in Dev Queue",
