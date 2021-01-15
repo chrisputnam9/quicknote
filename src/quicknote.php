@@ -32,8 +32,6 @@ Class Quicknote extends Console_Abstract
     protected $__ptfx_exec = "PTFX Exec";
     public $ptfx_exec = "/usr/local/bin/ptfx";
 
-    public const LINE_BREAK = "------------------------------------------------------------------------------------------------";
-
     protected $___add = [
         "Add a new note - with interactive prompt for details"
     ];
@@ -137,18 +135,18 @@ Class Quicknote extends Console_Abstract
             $edited = $this->edit(
 
                 "$task_name\n" . 
-                self::LINE_BREAK . "\n" .
-
-                "Assignee: '$assignee'\n" .
-                self::LINE_BREAK . "\n" .
+                self::EDIT_LINE_BREAK . "\n" .
 
                 "Due Date: '$due_date'\n" .
-                self::LINE_BREAK . "\n" .
+                self::EDIT_LINE_BREAK . "\n" .
+
+                "Assignee: '$assignee'\n" .
+                self::EDIT_LINE_BREAK . "\n" .
 
                 "Notes Below:\n" .
-                self::LINE_BREAK . "\n" .
+                self::EDIT_LINE_BREAK . "\n" .
                 $task_notes . "\n" .
-                self::LINE_BREAK . "\n" .
+                self::EDIT_LINE_BREAK . "\n" .
 
                 "HELP/TIPS:\n" . 
                 "Due Date: Any parseable date string\n" . 
@@ -157,15 +155,15 @@ Class Quicknote extends Console_Abstract
                 
                 "new_asana_task.md",
 
-                $try_again
+                !empty($task_name)
             );
 
-            $data = explode(self::LINE_BREAK, $edited);
+            $data = explode(self::EDIT_LINE_BREAK, $edited);
             $data = array_map('trim', $data);
 
             $task_name = $data[0];
-            $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[1]));
-            $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[2]));
+            $due_date = trim(preg_replace("/Due Date: '(.*)'$/", "$1", $data[1]));
+            $assignee = trim(preg_replace("/Assignee: '(.*)'$/", "$1", $data[2]));
             $task_notes = $data[4];
 
             $data = [
@@ -306,7 +304,8 @@ Class Quicknote extends Console_Abstract
         $url = $ptfx->create_todo(
             $id,        // list or project id
             null,       // message (will prompt)
-            $assign,    // user to assing
+            $assign,    // user to assign
+            null,       // due date (will prompt)
             $location,  // where to creat - top or bottom of list
             $type,      // type of id - list or project
             $template,  // message template
