@@ -29,6 +29,9 @@ Class Quicknote extends Console_Abstract
     protected $__pacli_exec = "PACLI Exec";
     public $pacli_exec = "/usr/local/bin/pacli";
 
+    protected $__pgh_exec = "PGH Exec";
+    public $pgh_exec = "/usr/local/bin/pgh";
+
     protected $__ptfx_exec = "PTFX Exec";
     public $ptfx_exec = "/usr/local/bin/ptfx";
 
@@ -319,7 +322,29 @@ Class Quicknote extends Console_Abstract
     ];
 	public function add_gh()
     {
-        echo "Add a new note - Github Issue - Not yet implemented";
+        // Initilize PGH for use here
+        $__no_direct_run__ = true;
+        ob_start();
+        require_once($this->pgh_exec);
+        $output = ob_get_clean();
+        $pgh = new Pgh();
+        $pgh->initConfig();
+
+        // Get all user's repositories
+        $results = $pgh->get("users/" . $pgh->api_username . "/repos");
+        $this->output($results);
+
+        // Select repository
+
+        // Get list of existing issues
+
+        // Edit loop to enter details of issue
+        // - Name
+        // - Description (md)
+        // - Tags, assign, etc
+        // - show existing issues for reference
+
+        // Add issue to repository
     }
 
     protected $___add_ml = [
