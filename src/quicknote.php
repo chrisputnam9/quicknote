@@ -331,12 +331,33 @@ Class Quicknote extends Console_Abstract
         $pgh->initConfig();
 
         // Get all user's repositories
-        $results = $pgh->get("users/" . $pgh->api_username . "/repos");
-        $this->output($results);
+        $results = $pgh->get("users/" . $pgh->api_username . "/repos", false);
 
         // Select repository
+        $repos = [];
+        foreach ($results as $repo)
+        {
+            $repo_listing = $repo->name . ": " . $repo->description . "( " . $repo->html_url . " )";
+            $repos[$repo_listing] = $repo->name;
+        }
+        $repo_keys = array_keys($repos);
+
+        // Select repo to add to (or no repo);
+        $repo_listing = $this->select($repo_keys, "Select repository");
+        $repo_name = $repos[$repo_listing];
 
         // Get list of existing issues
+        $results = $pgh->get("repos/" . $pgh->api_username . "/" . $repo_name . "/issues", false);
+        $issues = [];
+        foreach ($results as $issue)
+        {
+            $issues[]= str_pad($issue->number, 3, " ", STR_PAD_LEFT) . ". " .
+                str_pad("[" . $issue->state ."] ", 15, ".") . " " .
+                $issue->title
+            ;
+        }
+        $issues = implode("\n", $issues);
+        $this->output($issues);
 
         // Edit loop to enter details of issue
         // - Name
