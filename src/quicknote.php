@@ -348,24 +348,93 @@ Class Quicknote extends Console_Abstract
 
         // Get list of existing issues
         $results = $pgh->get("repos/" . $pgh->api_username . "/" . $repo_name . "/issues", false);
-        $issues = [];
+        $existing_issues = [];
         foreach ($results as $issue)
         {
-            $issues[]= str_pad($issue->number, 3, " ", STR_PAD_LEFT) . ". " .
+            $existing_issues[]= str_pad($issue->html_url ." ", 55, ".") .
+                // str_pad($issue->number, 3, " ", STR_PAD_LEFT) . ". "
                 str_pad("[" . $issue->state ."] ", 15, ".") . " " .
                 $issue->title
             ;
         }
-        $issues = implode("\n", $issues);
-        $this->output($issues);
+        $existing_issues = implode("\n", $existing_issues);
 
         // Edit loop to enter details of issue
-        // - Name
-        // - Description (md)
-        // - Tags, assign, etc
+        // - Title
+        // - Body
+        // - todo assignee(s), milestone, labels ?
         // - show existing issues for reference
+        $issue_title = "";
+        $issue_body = "";
+        $try_again = false;
+
+        do {
+            $warnings = [];
+
+            $edited = $this->edit(
+
+                "$issue_title\n" . 
+                self::EDIT_LINE_BREAK . "\n" .
+
+                "\nBODY BELOW:\n" .
+                self::EDIT_LINE_BREAK . "\n" .
+                $issue_body . "\n" .
+                self::EDIT_LINE_BREAK . "\n" .
+
+                "\nEXISTING ISSUES:\n" . 
+                self::EDIT_LINE_BREAK . "\n" .
+                $existing_issues .
+                self::EDIT_LINE_BREAK . "\n" .
+                "",
+                
+                "new_github_issue.md",
+
+                !empty($issue_title)
+            );
+
+            $data = explode(self::EDIT_LINE_BREAK, $edited);
+            $data = array_map('trim', $data);
+
+            $issue_title = $data[0];
+            $issue_body = $data[2];
+
+            $data = [
+                'title' => $issue_title,
+            ];
+
+            // No name will show up as a blank task
+            if (empty($issue_title))
+            {
+                $warnings[]= "No task name entered";
+            }
+
+            if (!empty($issue_body))
+            {
+                $data['body'] = $issue_body;
+            }
+
+            $try_again = false;
+            if (!empty($warnings))
+            {
+                $this->warn("\n - " . join("\n - ", $warnings));
+                $option = $this->select([
+                    "Go back and modify data (default)",
+                    "Create task anyway",
+                ]);
+
+                if ($option == "Go back and modify data (default)")
+                {
+                    $try_again = true;
+                }
+            }
+
+        } while ($try_again);
 
         // Add issue to repository
+        $result = $pgh->post("repos/" . $pgh->api_username . "/" . $repo_name . "/issues", $data);
+
+        // provide & offer to open full screen link
+        $this->_success_maybe_open($result->html_url);
     }
 
     protected $___add_ml = [
