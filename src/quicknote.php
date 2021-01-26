@@ -42,12 +42,12 @@ Class Quicknote extends Console_Abstract
     {
         $types = [
             "AS - Asana Todo" => "as",
-            "CL - Calendar Event" => "cl",
+            // "CL - Calendar Event" => "cl",
             "FX - TFX List" => "fx",
             "GH - Github Issue" => "gh",
-            "ML - E-mail Message (Email)" => "ml",
+            // "ML - E-mail Message (Email)" => "ml",
             "QN - Miscellaneous - Quicknotes file" => "qn",
-            "TX - Text Message (TXT, SMS)" => "tx",
+            // "TX - Text Message (TXT, SMS)" => "tx",
         ];
         $type_keys = array_keys($types);
 
