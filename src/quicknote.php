@@ -51,7 +51,7 @@ Class Quicknote extends Console_Abstract
         ];
         $type_keys = array_keys($types);
 
-        $type = $this->select($type_keys, "Select type of note", 5);
+        $type = $this->select($type_keys, "Select type of note", 3);
 
         $method = [$this, "add_" . $types[$type]];
         if (is_callable($method))
