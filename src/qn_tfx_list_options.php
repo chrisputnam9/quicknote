@@ -25,12 +25,18 @@ if (!class_exists('QN_TFX_List_Options'))
                 "id" => 31927383,
                 "location" => "top",
             ],
+            "bp" => [
+                "name" => "BP - Build / Redesign Process Project - Blocks & Core Vitals",
+                "type" => "project",
+                "id" => 14992659,
+                "location" => "bottom",
+            ],
             "cn" => [
                 "name" => "CN - Coaching Notes",
                 "type" => "project",
                 "id" => 14461689,
                 "location" => "bottom",
-                "template" => "Chris - ;",
+                "template" => "",
             ],
             "dn" => [
                 "name" => "DN - DevNext - Bootcamp, CDT, PP, etc.",

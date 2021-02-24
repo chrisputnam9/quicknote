@@ -36,9 +36,10 @@ Class Quicknote extends Console_Abstract
     public $ptfx_exec = "/usr/local/bin/ptfx";
 
     protected $___add = [
-        "Add a new note - with interactive prompt for details"
+        "Add a new note - with interactive prompt for details",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add()
+	public function add(...$preselects)
     {
         $types = [
             "AS - Asana Todo" => "as",
@@ -51,12 +52,13 @@ Class Quicknote extends Console_Abstract
         ];
         $type_keys = array_keys($types);
 
-        $type = $this->select($type_keys, "Select type of note", 3);
+        $type = $this->select($type_keys, "Select type of note", 3, true, $preselects);
 
         $method = [$this, "add_" . $types[$type]];
         if (is_callable($method))
         {
-            call_user_func($method);
+            $this->clear();
+            call_user_func_array($method, $preselects);
         }
         else
         {
@@ -66,8 +68,9 @@ Class Quicknote extends Console_Abstract
 
     protected $___add_as = [
         "Add a new note - Asana Todo",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_as()
+	public function add_as(...$preselects)
     {
         // Initilize PACLI for use here
         $__no_direct_run__ = true;
@@ -97,7 +100,7 @@ Class Quicknote extends Console_Abstract
         $project_keys = array_keys($projects);
 
         // Select project to add to (or no project);
-        $project_name = $this->select($project_keys, "Select project");
+        $project_name = $this->select($project_keys, "Select project", 0, true, $preselects);
         $project_gid = $projects[$project_name];
         //$this->output($project_name . ": " . $project_gid);
 
@@ -120,7 +123,7 @@ Class Quicknote extends Console_Abstract
 
                 // Select section to add to (or no section);
                 $this->clear();
-                $section_name = $this->select($section_keys, "Select section");
+                $section_name = $this->select($section_keys, "Select section", 0, true, $preselects);
                 $section_gid = $sections[$section_name];
                 //$this->output($section_name . ": " . $section_gid);
             }
@@ -261,16 +264,18 @@ Class Quicknote extends Console_Abstract
 
     protected $___add_cl = [
         "Add a new note - Calendar Event",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_cl()
+	public function add_cl(...$preselects)
     {
         echo "Add a new note - Calendar Event - Not yet implemented";
     }
 
     protected $___add_fx = [
         "Add a new note - TFX List",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_fx()
+	public function add_fx(...$preselects)
     {
         $this->clear();
 
@@ -284,7 +289,7 @@ Class Quicknote extends Console_Abstract
 
         $option_keys = array_keys($options);
 
-        $option = $this->select($option_keys, "Select area to add item", 4);
+        $option = $this->select($option_keys, "Select area to add item", 4, true, $preselects);
         $option_key = $options[$option];
         $option_config = $option_configs[$option_key];
 
@@ -319,8 +324,9 @@ Class Quicknote extends Console_Abstract
 
     protected $___add_gh = [
         "Add a new note - Github Issue",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_gh()
+	public function add_gh(...$preselects)
     {
         // Initilize PGH for use here
         $__no_direct_run__ = true;
@@ -337,13 +343,13 @@ Class Quicknote extends Console_Abstract
         $repos = [];
         foreach ($results as $repo)
         {
-            $repo_listing = $repo->name . ": " . $repo->description . "( " . $repo->html_url . " )";
+            $repo_listing = $repo->name . ": " . $repo->description . " ( " . $repo->html_url . " )";
             $repos[$repo_listing] = $repo->name;
         }
         $repo_keys = array_keys($repos);
 
         // Select repo to add to (or no repo);
-        $repo_listing = $this->select($repo_keys, "Select repository");
+        $repo_listing = $this->select($repo_keys, "Select repository", 0, true, $preselects);
         $repo_name = $repos[$repo_listing];
 
         // Get list of existing issues
@@ -439,16 +445,18 @@ Class Quicknote extends Console_Abstract
 
     protected $___add_ml = [
         "Add a new note - E-mail Message (Email)",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_ml()
+	public function add_ml(...$preselects)
     {
         echo "Add a new note - E-mail Message (Email) - Not yet implemented";
     }
 
     protected $___add_qn = [
         "Add a new note - Miscellaneous - Quicknotes file",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_qn()
+	public function add_qn(...$preselects)
     {
         $this->clear();
         $message = $this->edit();
@@ -467,8 +475,9 @@ Class Quicknote extends Console_Abstract
 
     protected $___add_tx = [
         "Add a new note - Text Message (TXT, SMS)",
+        ["Args to preselect responses", "string - multiple"]
     ];
-	public function add_tx()
+	public function add_tx(...$preselects)
     {
         echo "Add a new note - Text Message - Not yet implemented";
     }
